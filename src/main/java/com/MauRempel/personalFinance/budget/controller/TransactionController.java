@@ -1,8 +1,9 @@
 package com.MauRempel.personalFinance.budget.controller;
 
-import com.MauRempel.personalFinance.budget.DTO.TransactionRequestDTO;
+import com.MauRempel.personalFinance.budget.dto.TransactionRequestDTO;
 import com.MauRempel.personalFinance.budget.model.Transaction;
 import com.MauRempel.personalFinance.budget.service.TransactionService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,16 +30,11 @@ public class TransactionController {
         return service.calculateBalance();
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public void add(@RequestBody TransactionRequestDTO requestDTO){
-        Transaction transaction = new Transaction(
-                requestDTO.getAmount(),
-                requestDTO.getType(),
-                requestDTO.getCategory(),
-                requestDTO.getTimestamp()
-        );
-        service.addTransaction(transaction);
+    @ResponseStatus(HttpStatus.CREATED)
+    public void add(@Valid @RequestBody TransactionRequestDTO requestDTO){
+
+        service.addTransaction(requestDTO);
 
     }
 

@@ -18,23 +18,17 @@ public class Transaction{
         validatePositiveAmount(amount);
         validateType(type);
         validateCategory(category);
-        this.amount = normalizeBigDecimal(amount);
+        this.amount = normalizeAmount(amount);
         this.type = type;
         this.category = category;
-        this.timestamp = timestamp != null ? timestamp : LocalDateTime.now().withNano(0);
+        this.timestamp = timestamp;
     }
 
     public BigDecimal applyTo(BigDecimal currentBalance){
         if(currentBalance == null){
             throw new IllegalArgumentException("Current balance must not be null");
         }
-        if(type == TransactionType.INCOME){
-            return currentBalance.add(amount);
-        }
-        if(type == TransactionType.EXPENSE){
-            return currentBalance.subtract(amount);
-        }
-        throw new IllegalStateException("Unsupported transaction type " + type);
+        return type.apply(currentBalance, amount);
     }
 
 
@@ -71,7 +65,13 @@ public class Transaction{
         }
 
     }
-    private BigDecimal normalizeBigDecimal(BigDecimal amount){
+
+    private void validateTimestamp(LocalDateTime timestamp){
+        if(timestamp == null){
+            throw new IllegalArgumentException("Timestamp must not be null");
+        }
+    }
+    private BigDecimal normalizeAmount(BigDecimal amount){
         return amount.setScale(2, RoundingMode.HALF_EVEN);
     }
 }
