@@ -1,12 +1,14 @@
 package com.MauRempel.personalFinance.budget.service;
 
 import com.MauRempel.personalFinance.budget.dto.TransactionRequestDTO;
+import com.MauRempel.personalFinance.budget.dto.TransactionResponseDTO;
 import com.MauRempel.personalFinance.budget.model.Transaction;
 import com.MauRempel.personalFinance.budget.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,8 +50,27 @@ public class TransactionService {
         transactionRepository.save(transaction);
     }
 
-    public List<Transaction> findAll() {
-        return transactionRepository.findAll();
+    private TransactionResponseDTO toResponseDTO(Transaction transaction){
+        return new TransactionResponseDTO(
+                transaction.getId(),
+                transaction.getAmount(),
+                transaction.getType(),
+                transaction.getCategory(),
+                transaction.getTimestamp()
+        );
+    }
+
+    public List<TransactionResponseDTO> findAll() {
+        List<Transaction> transactions =  transactionRepository.findAll();
+
+        List<TransactionResponseDTO> responseDTOList = new ArrayList<>();
+
+        for (Transaction transaction: transactions) {
+
+            responseDTOList.add(toResponseDTO(transaction));
+
+        }
+        return responseDTOList;
     }
 
 

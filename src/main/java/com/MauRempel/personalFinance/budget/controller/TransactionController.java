@@ -1,7 +1,7 @@
 package com.MauRempel.personalFinance.budget.controller;
 
 import com.MauRempel.personalFinance.budget.dto.TransactionRequestDTO;
-import com.MauRempel.personalFinance.budget.model.Transaction;
+import com.MauRempel.personalFinance.budget.dto.TransactionResponseDTO;
 import com.MauRempel.personalFinance.budget.service.TransactionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class TransactionController {
     }
 
     @GetMapping
-    public List<Transaction> getAll(){
+    public List<TransactionResponseDTO> getAll(){
         return service.findAll();
     }
 
