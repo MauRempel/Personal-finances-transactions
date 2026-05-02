@@ -13,13 +13,15 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class TransactionServiceTest {
 
     private final TransactionRepository repository = mock(TransactionRepository.class);
     private final TransactionService service = new TransactionService(repository);
+
+    private static final LocalDateTime FIXED_TIMESTAMP = LocalDateTime.of(2026, 4, 29, 10, 0);
 
     @Test
     void shouldReturnZeroWhenThereAreNoTransactions(){
@@ -39,7 +41,7 @@ public class TransactionServiceTest {
     @Test
     void shouldAddIncomeTransactionToBalance(){
         BigDecimal value = new BigDecimal("100.00");
-        Transaction transaction = new Transaction(value, TransactionType.INCOME, Category.ENTERTAINMENT, LocalDateTime.of(2026, 4, 29, 10, 0));
+        Transaction transaction = createTransaction(value, TransactionType.INCOME, Category.ENTERTAINMENT);
 
         //Arrange
         when(repository.findAll()).thenReturn(List.of(transaction));
@@ -54,7 +56,7 @@ public class TransactionServiceTest {
     @Test
     void shouldSubtractExpenseTransactionFromBalance(){
         BigDecimal value = new BigDecimal("100.00");
-        Transaction transaction = new Transaction(value, TransactionType.EXPENSE, Category.ENTERTAINMENT, LocalDateTime.of(2026, 4, 29, 10, 0));
+        Transaction transaction = createTransaction(value, TransactionType.EXPENSE, Category.ENTERTAINMENT);
 
         //Arrange
         when(repository.findAll()).thenReturn(List.of(transaction));
@@ -68,9 +70,9 @@ public class TransactionServiceTest {
 
     @Test
     void shouldReturnCorrectBalanceForMixedTransactions(){
-        Transaction transaction1 = new Transaction(new BigDecimal("1000.00"), TransactionType.INCOME, Category.SALARY, LocalDateTime.of(2026, 4, 29, 10, 0));
-        Transaction transaction2 = new Transaction(new BigDecimal("250.00"), TransactionType.EXPENSE, Category.FOOD, LocalDateTime.of(2026, 4, 29, 10, 0));
-        Transaction transaction3 = new Transaction(new BigDecimal("49.90"), TransactionType.EXPENSE, Category.ENTERTAINMENT, LocalDateTime.of(2026, 4, 29, 10, 0));
+        Transaction transaction1 = createTransaction(new BigDecimal("1000.00"), TransactionType.INCOME, Category.SALARY);
+        Transaction transaction2 = createTransaction(new BigDecimal("250.00"), TransactionType.EXPENSE, Category.FOOD);
+        Transaction transaction3 = createTransaction(new BigDecimal("49.90"), TransactionType.EXPENSE, Category.ENTERTAINMENT);
 
 
         //Arrange
@@ -91,7 +93,7 @@ public class TransactionServiceTest {
         transactionRequestDTO.setAmount(new BigDecimal("150.00"));
         transactionRequestDTO.setType(TransactionType.INCOME);
         transactionRequestDTO.setCategory(Category.SALARY);
-        transactionRequestDTO.setTimestamp(LocalDateTime.of(2026, 4, 29, 10, 0));
+        transactionRequestDTO.setTimestamp(FIXED_TIMESTAMP);
 
         //Act
         service.addTransaction(transactionRequestDTO);
@@ -106,5 +108,35 @@ public class TransactionServiceTest {
         assertEquals(TransactionType.INCOME, result.getType());
         assertEquals(Category.SALARY, result.getCategory());
         assertEquals(LocalDateTime.of(2026, 4, 29, 10, 0), result.getTimestamp());
+    }
+
+    @Test
+    void addTransactionShouldUseCurrentTimeWhenTimestampIsNull(){
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO();
+
+        //Arrange
+        transactionRequestDTO.setAmount(new BigDecimal("150.00"));
+        transactionRequestDTO.setType(TransactionType.INCOME);
+        transactionRequestDTO.setCategory(Category.SALARY);
+
+        //Act
+        LocalDateTime before = LocalDateTime.now();
+        service.addTransaction(transactionRequestDTO);
+
+        //Assert
+        ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
+        verify(repository).save(captor.capture());
+
+        LocalDateTime after = LocalDateTime.now();
+
+        Transaction result = captor.getValue();
+
+        assertNotNull(result.getTimestamp());
+        assertFalse(result.getTimestamp().isBefore(before.withNano(0)));
+        assertFalse(result.getTimestamp().isAfter(after.withNano(0)));
+
+    }
+    private Transaction createTransaction(BigDecimal amount, TransactionType type, Category category){
+        return new Transaction(amount, type, category, FIXED_TIMESTAMP);
     }
 }
