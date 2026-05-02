@@ -1,165 +1,151 @@
-# 💰 Personal Finances Transactions API
+# 💰 API de Transações de Finanças Pessoais
 
-API backend desenvolvida para gerenciamento de transações financeiras pessoais, com foco em regras de negócio, consistência de dados e organização de domínio.
+API REST desenvolvida com **Spring Boot** para gerenciamento de transações financeiras pessoais, incluindo receitas e despesas, com categorização e cálculo automático de saldo.
 
-## 📌 Sobre o Projeto
+---
 
-Este projeto simula um sistema real de controle financeiro, permitindo o registro e processamento de transações como entradas e saídas, com cálculo automático de saldo.
+## 🎯 Objetivo
 
-A aplicação foi construída com foco em:
+Este projeto foi criado para simular um **sistema backend real de controle financeiro**, inspirado em uma planilha de orçamento pessoal.
 
-- Modelagem de domínio
-- Regras de negócio bem definidas
-- Boas práticas de backend com Java
+O foco é aplicar boas práticas de desenvolvimento backend, como:
+
+* Arquitetura em camadas
+* Uso de DTOs para transferência de dados
+* Validação de entrada
+* Tratamento global de exceções
+* Design de API REST
+* Documentação com Swagger (OpenAPI)
 
 ---
 
 ## 🚀 Funcionalidades
 
-- ✅ Registro de transações financeiras
-- ✅ Classificação por tipo (INCOME / EXPENSE)
-- ✅ Cálculo automático de saldo
-- ✅ Validação de dados de entrada
-- ✅ Estrutura preparada para API REST
+* Criar transações financeiras (receitas e despesas)
+* Categorizar transações (alimentação, salário, etc.)
+* Cálculo automático do saldo
+* Validação de dados (valor, tipo, categoria)
+* Tratamento global de erros
+* Endpoints REST organizados
+* Documentação interativa com Swagger
+* Ambiente de testes isolado com banco em memória
 
----
-
-## 🧱 Arquitetura
-
-O projeto segue uma organização em camadas:
-```java
-📦 src/main/java
-┣ 📂 controller → Entrada da aplicação (HTTP)
-┣ 📂 service → Regras de negócio
-┣ 📂 model → Entidades do domínio
-┣ 📂 DTO → Transferência de dados
-```
----
-
-### 🔹 Separação de responsabilidades
-
-- **Controller**
-    - Recebe requisições e delega para o service
-
-- **Service**
-    - Contém lógica central (ex: cálculo de saldo)
-
-- **Model**
-    - Representa as entidades e regras básicas
-
-- **DTO**
-    - Isola entrada/saída da API
-
----
-
-## 🧠 Regra de Negócio
-
-O saldo é calculado com base nas transações:
-
-- Entradas (**INCOME**) → somam ao saldo
-- Saídas (**EXPENSE**) → subtraem do saldo
-
-Exemplo:
-
-```java
-public BigDecimal calculateBalance(List<Transaction> transactions) {
-    if (transactions == null) {
-        throw new IllegalArgumentException("Transactions must not be null");
-    }
-
-    BigDecimal balance = BigDecimal.ZERO;
-
-    for (Transaction t : transactions) {
-        if (t.getType().equals("INCOME")) {
-            balance = balance.add(t.getValue());
-        } else {
-            balance = balance.subtract(t.getValue());
-        }
-    }
-
-    return balance;
-}
-```
----
-
-### ⚠️ Decisões Técnicas
-💡 Uso de BigDecimal
-
-Para evitar problemas de precisão em cálculos financeiros, foi utilizado:
-```java
-BigDecimal
-```
-
-Evita erros comuns com double em operações monetárias.
-
----
-
-### 💡 Validação de Entrada
-Proteção contra listas nulas
-Preparação para validações mais robustas (Bean Validation)
----
-
-### 💡 Camada de Serviço
-
-A lógica foi centralizada na camada de serviço para:
-
-- Facilitar testes
-- Evitar lógica no controller
-- Melhorar manutenção
 ---
 
 ## 🛠️ Tecnologias
-- Java 17+
-- Spring Boot (estrutura base)
-- Maven
-- REST API
-- BigDecimal (precisão financeira)
+
+* Java 25
+* Spring Boot
+* Spring Web
+* Maven
+* H2 Database (para testes)
+* Swagger (Springdoc OpenAPI)
+
 ---
 
-### 📬 Como Executar
-```bash
-# Clonar repositório
+## 📄 Documentação da API
 
-git clone https://github.com/MauRempel/Personal-finances-transactions.git
+A documentação interativa está disponível em:
 
-# Entrar no projeto
-cd Personal-finances-transactions
+👉 http://localhost:8080/swagger-ui.html
 
-# Rodar aplicação
-./mvnw spring-boot:run
-```
-## 🔎 Testando a API
+Através dela, é possível visualizar e testar todos os endpoints da API diretamente pelo navegador.
 
-Exemplo de requisição:
-```json
+---
 
-POST /transactions
-Content-Type: application/json
+## 📌 Endpoints
 
+| Método | Endpoint                | Descrição                 |
+| ------ | ----------------------- | ------------------------- |
+| GET    | `/transactions`         | Lista todas as transações |
+| POST   | `/transactions`         | Cria uma nova transação   |
+| GET    | `/transactions/balance` | Retorna o saldo atual     |
+
+---
+
+## 📥 Exemplo de Requisição
+
+**POST /transactions**
+
+```json id="br1"
 {
-"description": "Salário",
-"value": 3000,
-"type": "INCOME"
+  "amount": 100.50,
+  "type": "EXPENSE",
+  "category": "FOOD",
+  "timestamp": "2026-04-16T09:00:00"
 }
 ```
+
 ---
-### 🧪 Possíveis Evoluções
-- Persistência com banco de dados (PostgreSQL + JPA) - em andamento
-- Autenticação (JWT + Spring Security)
-- Testes unitários (JUnit / Mockito)
-- Documentação com Swagger
-- Paginação e filtros
-- Dockerização
+
+## 🧩 Arquitetura
+
+O projeto segue uma **arquitetura em camadas**:
+
+* **Controller** → Responsável pelas requisições HTTP
+* **Service** → Contém as regras de negócio
+* **Model** → Representa as entidades do domínio
+* **DTO** → Objetos de transferência de dados (entrada/saída)
+* **Exception** → Tratamento global de erros
+* **Config** → Configurações da aplicação (Swagger/OpenAPI)
+
 ---
-### 📊 Contexto
 
-Sistemas de controle financeiro são amplamente utilizados para acompanhar receitas e despesas, permitindo melhor organização e tomada de decisão financeira.
+## 🧪 Testes
 
-### 👨‍💻 Autor
+* Testes unitários para a camada de serviço
+* Configuração separada para testes utilizando banco em memória (H2)
+* Execução rápida e isolada dos testes
 
-**Maurício Rempel Carmignan**
+---
 
-Desenvolvedor Backend Java
+## ▶️ Como executar o projeto
 
-🔗 [Linkedin](https://www.linkedin.com/in/mauricio-rempel-back-end/)
-💻 [Github](https://github.com/MauRempel)
+### 1. Clonar o repositório
+
+```bash id="br2"
+git clone https://github.com/MauRempel/Personal-finances-transactions.git
+cd Personal-finances-transactions
+```
+
+### 2. Executar a aplicação
+
+```bash id="br3"
+./mvnw spring-boot:run
+```
+
+### 3. Acessar a API
+
+* API: http://localhost:8080
+* Swagger UI: http://localhost:8080/swagger-ui.html
+
+---
+
+## ⚠️ Observações
+
+* Arquivos de banco de dados não são versionados (ignorados via `.gitignore`)
+* Os testes utilizam banco em memória (H2)
+* O valor (`amount`) deve ser **positivo**
+* O tipo da transação (INCOME / EXPENSE) define o impacto no saldo
+
+---
+
+## 🔮 Melhorias Futuras
+
+* Persistência com banco de dados (PostgreSQL)
+* Implementar GET por ID, DELETE e UPDATE
+* Paginação e filtros
+* Autenticação (JWT)
+* Relatórios financeiros (mensal, por categoria, etc.)
+
+---
+
+## 👨‍💻 Autor
+
+Maurício Rempel
+Desenvolvedor Backend (Java / Spring Boot)
+
+* GitHub: https://github.com/MauRempel
+* LinkedIn: https://www.linkedin.com/in/mauricio-rempel-back-end/
+
+---

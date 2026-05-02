@@ -163,6 +163,7 @@ buildNumber.properties
 *.mv.db
 *.h2.db
 *.db
+/data
 
 # OS files
 .DS_Store
