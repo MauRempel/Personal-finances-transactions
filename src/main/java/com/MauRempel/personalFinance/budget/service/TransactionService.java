@@ -31,7 +31,7 @@ public class TransactionService {
         return balance;
     }
 
-    public void addTransaction(TransactionRequestDTO requestDTO){
+    public TransactionResponseDTO addTransaction(TransactionRequestDTO requestDTO){
         if(requestDTO == null){
             throw new IllegalArgumentException("Transaction request must not be null");
         }
@@ -48,6 +48,7 @@ public class TransactionService {
         );
 
         transactionRepository.save(transaction);
+        return toResponseDTO(transaction);
     }
 
     private TransactionResponseDTO toResponseDTO(Transaction transaction){
@@ -71,6 +72,20 @@ public class TransactionService {
 
         }
         return responseDTOList;
+    }
+
+    public TransactionResponseDTO findById(Long id){
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(()-> new IllegalArgumentException("Transaction with id " + id + " not found"));
+
+        return toResponseDTO(transaction);
+    }
+
+    public void deleteById(Long id){
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(()-> new IllegalArgumentException("Transaction with id " + id + " not found"));
+
+        transactionRepository.delete(transaction);
     }
 
 

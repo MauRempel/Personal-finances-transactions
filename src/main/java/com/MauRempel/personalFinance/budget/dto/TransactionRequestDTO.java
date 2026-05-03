@@ -11,16 +11,16 @@ import java.time.LocalDateTime;
 
 public class TransactionRequestDTO {
 
-    @Schema(example = "100.50", description = "Transaction amount")
+    @Schema(example = "100.50", description = "Transaction amount in currency format")
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be greater than zero")
     private BigDecimal amount;
 
-    @Schema(example = "EXPENSE")
+
     @NotNull(message = "Transaction type is required")
     private TransactionType type;
 
-    @Schema(example = "FOOD")
+
     @NotNull(message = "Category is required")
     private Category category;
 
