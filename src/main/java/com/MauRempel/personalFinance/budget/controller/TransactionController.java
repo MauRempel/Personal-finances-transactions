@@ -23,7 +23,7 @@ public class TransactionController {
         this.service = service;
     }
 
-    @Operation(summary = "Get all transactions", description = "Returns all the transactions stored on the databse")
+    @Operation(summary = "Get all transactions", description = "Returns all the transactions stored on the database")
     @GetMapping
     public List<TransactionResponseDTO> getAll(){
         return service.findAll();
@@ -61,12 +61,23 @@ public class TransactionController {
     @Operation(summary = "Delete transaction by ID", description ="Deletes a transaction based on its ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Transaction deleted"),
-            @ApiResponse(responseCode = "400", description = "Transaction not found")
+            @ApiResponse(responseCode = "404", description = "Transaction not found")
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id){
         service.deleteById(id);
+    }
+
+    @Operation(summary = "Updates an existing transaction by its ID. All fields must be provided.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Transaction updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "Transaction not found")
+    })
+    @PutMapping("/{id}")
+    public TransactionResponseDTO update(@PathVariable Long id, @Valid @RequestBody TransactionRequestDTO requestDTO){
+        return service.updateTransaction(id, requestDTO);
     }
 
 

@@ -2,6 +2,7 @@ package com.MauRempel.personalFinance.budget.service;
 
 import com.MauRempel.personalFinance.budget.dto.TransactionRequestDTO;
 import com.MauRempel.personalFinance.budget.dto.TransactionResponseDTO;
+import com.MauRempel.personalFinance.budget.exception.ResourceNotFoundException;
 import com.MauRempel.personalFinance.budget.model.Transaction;
 import com.MauRempel.personalFinance.budget.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
@@ -83,9 +84,27 @@ public class TransactionService {
 
     public void deleteById(Long id){
         Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("Transaction with id " + id + " not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Transaction with id " + id + " not found"));
 
         transactionRepository.delete(transaction);
+    }
+
+    public TransactionResponseDTO updateTransaction(Long id, TransactionRequestDTO requestDTO){
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Transaction with id " + id + " not found"));
+
+        LocalDateTime timestamp = requestDTO.getTimestamp() != null
+                ? requestDTO.getTimestamp()
+                : transaction.getTimestamp();
+
+        transaction.setAmount(requestDTO.getAmount());
+        transaction.setType(requestDTO.getType());
+        transaction.setCategory(requestDTO.getCategory());
+        transaction.setTimestamp(timestamp);
+
+        transactionRepository.save(transaction);
+
+        return toResponseDTO(transaction);
     }
 
 

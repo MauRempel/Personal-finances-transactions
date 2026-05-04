@@ -97,4 +97,20 @@ public class Transaction{
     private BigDecimal normalizeAmount(BigDecimal amount){
         return amount.setScale(2, RoundingMode.HALF_EVEN);
     }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public void setType(TransactionType type) {
+        this.type = type;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 }

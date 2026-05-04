@@ -36,6 +36,14 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleNotFound(ResourceNotFoundException ex){
+
+        log.warn("Resource not found: {}", ex.getMessage());
+
+        return buildErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
 
 
     @ExceptionHandler(Exception.class)
