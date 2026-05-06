@@ -30,18 +30,12 @@ public class Transaction{
     private LocalDateTime timestamp;
 
     protected Transaction(){
+        // Required by JPA
 
     }
 
     public Transaction(BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp) {
-        validatePositiveAmount(amount);
-        validateType(type);
-        validateCategory(category);
-        validateTimestamp(timestamp);
-        this.amount = normalizeAmount(amount);
-        this.type = type;
-        this.category = category;
-        this.timestamp = timestamp;
+        applyData(amount, type, category, timestamp);
     }
 
     public BigDecimal applyTo(BigDecimal currentBalance){
@@ -49,6 +43,10 @@ public class Transaction{
             throw new IllegalArgumentException("Current balance must not be null");
         }
         return type.apply(currentBalance, amount);
+    }
+
+    public void update(BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp){
+        applyData(amount, type, category, timestamp);
     }
 
 
@@ -98,19 +96,17 @@ public class Transaction{
         return amount.setScale(2, RoundingMode.HALF_EVEN);
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
+    private void applyData(BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp){
+        validatePositiveAmount(amount);
+        validateType(type);
+        validateCategory(category);
+        validateTimestamp(timestamp);
 
-    public void setType(TransactionType type) {
+        this.amount = normalizeAmount(amount);
         this.type = type;
-    }
-
-    public void setCategory(Category category) {
         this.category = category;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
+
+
 }

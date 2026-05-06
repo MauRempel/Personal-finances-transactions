@@ -76,35 +76,40 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO findById(Long id){
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("Transaction with id " + id + " not found"));
+        Transaction transaction = findTransactionByIdOrThrow(id);
 
         return toResponseDTO(transaction);
     }
 
     public void deleteById(Long id){
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Transaction with id " + id + " not found"));
+        Transaction transaction = findTransactionByIdOrThrow(id);
 
         transactionRepository.delete(transaction);
     }
 
     public TransactionResponseDTO updateTransaction(Long id, TransactionRequestDTO requestDTO){
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Transaction with id " + id + " not found"));
+        Transaction transaction = findTransactionByIdOrThrow(id);
 
         LocalDateTime timestamp = requestDTO.getTimestamp() != null
                 ? requestDTO.getTimestamp()
                 : transaction.getTimestamp();
 
-        transaction.setAmount(requestDTO.getAmount());
-        transaction.setType(requestDTO.getType());
-        transaction.setCategory(requestDTO.getCategory());
-        transaction.setTimestamp(timestamp);
+        transaction.update(
+                requestDTO.getAmount(),
+                requestDTO.getType(),
+                requestDTO.getCategory(),
+                timestamp
+        );
 
         transactionRepository.save(transaction);
 
         return toResponseDTO(transaction);
+    }
+
+    private Transaction findTransactionByIdOrThrow(Long id){
+        return transactionRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Transaction with id " + id + " not found"));
+
     }
 
 
