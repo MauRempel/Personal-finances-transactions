@@ -164,6 +164,7 @@ buildNumber.properties
 *.h2.db
 *.db
 /data
+.idea/inspectionProfiles/
 
 # OS files
 .DS_Store

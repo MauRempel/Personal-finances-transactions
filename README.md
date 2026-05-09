@@ -1,151 +1,240 @@
-# 💰 API de Transações de Finanças Pessoais
+# Personal Finance Transactions API
 
-API REST desenvolvida com **Spring Boot** para gerenciamento de transações financeiras pessoais, incluindo receitas e despesas, com categorização e cálculo automático de saldo.
+API REST desenvolvida com Spring Boot e Java para gerenciamento de transações financeiras pessoais, permitindo controle de receitas, despesas, categorização e cálculo de saldo.
 
 ---
 
-## 🎯 Objetivo
+## 📌 Objetivo do Projeto
 
-Este projeto foi criado para simular um **sistema backend real de controle financeiro**, inspirado em uma planilha de orçamento pessoal.
+Este projeto foi desenvolvido como aplicação de portfólio backend com foco em prática de:
 
-O foco é aplicar boas práticas de desenvolvimento backend, como:
-
-* Arquitetura em camadas
-* Uso de DTOs para transferência de dados
-* Validação de entrada
-* Tratamento global de exceções
-* Design de API REST
-* Documentação com Swagger (OpenAPI)
+- arquitetura em camadas
+- desenvolvimento de APIs REST
+- boas práticas com DTOs
+- validação de dados
+- tratamento global de exceções
+- persistência de dados com JPA
+- versionamento de banco de dados com Flyway
+- documentação com Swagger / OpenAPI
 
 ---
 
 ## 🚀 Funcionalidades
 
-* Criar transações financeiras (receitas e despesas)
-* Categorizar transações (alimentação, salário, etc.)
-* Cálculo automático do saldo
-* Validação de dados (valor, tipo, categoria)
-* Tratamento global de erros
-* Endpoints REST organizados
-* Documentação interativa com Swagger
-* Ambiente de testes isolado com banco em memória
+✅ Criar transações financeiras  
+✅ Listar todas as transações  
+✅ Buscar transação por ID  
+✅ Atualizar transações  
+✅ Remover transações  
+✅ Calcular saldo atual  
+✅ Validação de payloads com Bean Validation  
+✅ Tratamento padronizado de erros  
+✅ Documentação interativa com Swagger/OpenAPI  
+✅ Perfis separados para desenvolvimento, testes e PostgreSQL
 
 ---
 
-## 🛠️ Tecnologias
+## 🛠️ Tecnologias Utilizadas
 
-* Java 25
-* Spring Boot
-* Spring Web
-* Maven
-* H2 Database (para testes)
-* Swagger (Springdoc OpenAPI)
-
----
-
-## 📄 Documentação da API
-
-A documentação interativa está disponível em:
-
-👉 http://localhost:8080/swagger-ui.html
-
-Através dela, é possível visualizar e testar todos os endpoints da API diretamente pelo navegador.
+- Java 25
+- Spring Boot 4
+- Spring Web MVC
+- Spring Data JPA
+- PostgreSQL
+- H2 Database
+- Flyway
+- Springdoc OpenAPI
+- Maven
 
 ---
 
-## 📌 Endpoints
+## 📚 Documentação da API
 
-| Método | Endpoint                | Descrição                 |
-| ------ | ----------------------- | ------------------------- |
-| GET    | `/transactions`         | Lista todas as transações |
-| POST   | `/transactions`         | Cria uma nova transação   |
-| GET    | `/transactions/balance` | Retorna o saldo atual     |
+Após iniciar a aplicação, a documentação Swagger estará disponível em:
+
+```bash
+http://localhost:8080/swagger-ui.html
+```
 
 ---
 
-## 📥 Exemplo de Requisição
+# 🔗 Endpoints
 
-**POST /transactions**
+| Método | Endpoint | Descrição |
+|---|---|---|
+| GET | `/transactions` | Lista todas as transações |
+| GET | `/transactions/{id}` | Busca transação por ID |
+| POST | `/transactions` | Cria uma nova transação |
+| PUT | `/transactions/{id}` | Atualiza uma transação |
+| DELETE | `/transactions/{id}` | Remove uma transação |
+| GET | `/transactions/balance` | Retorna o saldo atual |
 
-```json id="br1"
+---
+
+## 🧾 Exemplo de Requisição
+
+### POST `/transactions`
+
+```json
 {
-  "amount": 100.50,
-  "type": "EXPENSE",
-  "category": "FOOD",
-  "timestamp": "2026-04-16T09:00:00"
+  "amount": 1000.00,
+  "type": "INCOME",
+  "category": "SALARY",
+  "timestamp": "2026-05-09T09:00:00"
 }
 ```
 
 ---
 
-## 🧩 Arquitetura
+## 🧱 Estrutura do Projeto
 
-O projeto segue uma **arquitetura em camadas**:
-
-* **Controller** → Responsável pelas requisições HTTP
-* **Service** → Contém as regras de negócio
-* **Model** → Representa as entidades do domínio
-* **DTO** → Objetos de transferência de dados (entrada/saída)
-* **Exception** → Tratamento global de erros
-* **Config** → Configurações da aplicação (Swagger/OpenAPI)
-
----
-
-## 🧪 Testes
-
-* Testes unitários para a camada de serviço
-* Configuração separada para testes utilizando banco em memória (H2)
-* Execução rápida e isolada dos testes
+```text
+src/main/java/com/MauRempel/personalFinance/budget
+│
+├── controller   → Endpoints HTTP
+├── service      → Regras de negócio
+├── repository   → Camada de acesso a dados
+├── model        → Entidades e enums
+├── dto          → Objetos de request/response
+├── exception    → Tratamento global de exceções
+└── config       → Configurações da aplicação
+```
 
 ---
 
-## ▶️ Como executar o projeto
+## ⚙️ Profiles da Aplicação
 
-### 1. Clonar o repositório
+O projeto utiliza profiles separados por ambiente:
 
-```bash id="br2"
+| Profile | Descrição |
+|---|---|
+| `dev` | Banco H2 local |
+| `test` | Banco H2 em memória para testes |
+| `postgres` | PostgreSQL com Flyway |
+
+As configurações principais ficam em:
+
+```text
+src/main/resources/application.properties
+```
+
+---
+
+## 🗄️ Estratégia de Banco de Dados
+
+### Desenvolvimento Local
+
+- Profile `dev` utiliza H2
+- Profile `postgres` utiliza PostgreSQL
+
+### Versionamento de Schema
+
+As alterações de schema são gerenciadas pelo Flyway através das migrations em:
+
+```text
+src/main/resources/db/migration
+```
+
+O Hibernate está configurado com:
+
+```properties
+spring.jpa.hibernate.ddl-auto=validate
+```
+
+Isso significa que:
+
+- Flyway gerencia a criação/evolução do banco
+- Hibernate valida compatibilidade do schema
+- Hibernate não altera automaticamente o banco PostgreSQL
+
+---
+
+## ▶️ Como Executar
+
+### 1️⃣ Clonar o repositório
+
+```bash
 git clone https://github.com/MauRempel/Personal-finances-transactions.git
 cd Personal-finances-transactions
 ```
 
-### 2. Executar a aplicação
+---
 
-```bash id="br3"
+### 2️⃣ Executar com profile padrão (`dev`)
+
+```bash
 ./mvnw spring-boot:run
 ```
 
-### 3. Acessar a API
+---
 
-* API: http://localhost:8080
-* Swagger UI: http://localhost:8080/swagger-ui.html
+### 3️⃣ Executar com PostgreSQL
+
+Crie um banco chamado:
+
+```text
+personal_finances
+```
+
+Depois execute:
+
+```bash
+./mvnw "-Dspring-boot.run.profiles=postgres" spring-boot:run
+```
+
+### Windows PowerShell
+
+```powershell
+.\mvnw.cmd "-Dspring-boot.run.profiles=postgres" spring-boot:run
+```
 
 ---
 
-## ⚠️ Observações
+## 4️⃣ Executar testes
 
-* Arquivos de banco de dados não são versionados (ignorados via `.gitignore`)
-* Os testes utilizam banco em memória (H2)
-* O valor (`amount`) deve ser **positivo**
-* O tipo da transação (INCOME / EXPENSE) define o impacto no saldo
+```bash
+./mvnw test
+```
 
 ---
 
-## 🔮 Melhorias Futuras
+# 📌 Regras de Negócio
 
-* Persistência com banco de dados (PostgreSQL)
-* Implementar GET por ID, DELETE e UPDATE
-* Paginação e filtros
-* Autenticação (JWT)
-* Relatórios financeiros (mensal, por categoria, etc.)
+- O valor da transação deve ser positivo
+- O tipo da transação define o impacto no saldo:
+    - `INCOME` → adiciona ao saldo
+    - `EXPENSE` → subtrai do saldo
+
+---
+
+## 🔍 Melhorias Implementadas
+
+- CRUD completo de transações
+- Separação entre Entity e DTO
+- Tratamento global de exceções
+- Retorno padronizado de erros
+- Respostas HTTP consistentes (`400`, `404`, etc.)
+- Documentação Swagger/OpenAPI
+- Versionamento de banco com Flyway
+- Configuração separada por profiles
+
+---
+
+# 🚧 Melhorias Futuras
+
+- Paginação de resultados
+- Filtros por categoria e período
+- Otimização do cálculo de saldo via query SQL
+- Testes de integração
+- Autenticação e autorização
+- Deploy em nuvem
+- CI/CD
 
 ---
 
 ## 👨‍💻 Autor
 
-Maurício Rempel
-Desenvolvedor Backend (Java / Spring Boot)
+### Mauricio Rempel
 
-* GitHub: https://github.com/MauRempel
-* LinkedIn: https://www.linkedin.com/in/mauricio-rempel-back-end/
-
----
+- GitHub: https://github.com/MauRempel
+- LinkedIn: https://www.linkedin.com/in/mauricio-rempel-back-end/
