@@ -13,13 +13,15 @@ public class TransactionResponseDTO {
     private final TransactionType type;
     private final Category category;
     private final LocalDateTime timestamp;
+    private final String description;
 
-    public TransactionResponseDTO(Long id, BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp) {
+    public TransactionResponseDTO(Long id, BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp, String description) {
         this.id = id;
         this.amount = amount;
         this.type = type;
         this.category = category;
         this.timestamp = timestamp;
+        this.description = description;
     }
 
     public Long getId() {
@@ -42,5 +44,7 @@ public class TransactionResponseDTO {
         return timestamp;
     }
 
-
+    public String getDescription() {
+        return description;
+    }
 }

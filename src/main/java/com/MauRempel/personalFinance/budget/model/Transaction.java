@@ -29,13 +29,16 @@ public class Transaction{
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
+    @Column(length = 255)
+    private String description;
+
     protected Transaction(){
         // Required by JPA
 
     }
 
-    public Transaction(BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp) {
-        applyData(amount, type, category, timestamp);
+    public Transaction(BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp, String description) {
+        applyData(amount, type, category, timestamp, description);
     }
 
     public BigDecimal applyTo(BigDecimal currentBalance){
@@ -45,8 +48,8 @@ public class Transaction{
         return type.apply(currentBalance, amount);
     }
 
-    public void update(BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp){
-        applyData(amount, type, category, timestamp);
+    public void update(BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp, String description){
+        applyData(amount, type, category, timestamp, description);
     }
 
 
@@ -68,6 +71,10 @@ public class Transaction{
 
     public LocalDateTime getTimestamp() {
         return timestamp;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     private void validatePositiveAmount(BigDecimal amount){
@@ -92,20 +99,27 @@ public class Transaction{
             throw new IllegalArgumentException("Timestamp must not be null");
         }
     }
+    private void validateDescription(String description){
+        if(description != null && description.length() > 255){
+            throw new IllegalArgumentException("Description must have at most 255 characters");
+        }
+    }
     private BigDecimal normalizeAmount(BigDecimal amount){
         return amount.setScale(2, RoundingMode.HALF_EVEN);
     }
 
-    private void applyData(BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp){
+    private void applyData(BigDecimal amount, TransactionType type, Category category, LocalDateTime timestamp, String description){
         validatePositiveAmount(amount);
         validateType(type);
         validateCategory(category);
         validateTimestamp(timestamp);
+        validateDescription(description);
 
         this.amount = normalizeAmount(amount);
         this.type = type;
         this.category = category;
         this.timestamp = timestamp;
+        this.description = description;
     }
 
 

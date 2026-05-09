@@ -45,7 +45,8 @@ public class TransactionService {
                 requestDTO.getAmount(),
                 requestDTO.getType(),
                 requestDTO.getCategory(),
-                timestamp
+                timestamp,
+                requestDTO.getDescription()
         );
 
         transactionRepository.save(transaction);
@@ -58,7 +59,8 @@ public class TransactionService {
                 transaction.getAmount(),
                 transaction.getType(),
                 transaction.getCategory(),
-                transaction.getTimestamp()
+                transaction.getTimestamp(),
+                transaction.getDescription()
         );
     }
 
@@ -98,7 +100,8 @@ public class TransactionService {
                 requestDTO.getAmount(),
                 requestDTO.getType(),
                 requestDTO.getCategory(),
-                timestamp
+                timestamp,
+                requestDTO.getDescription()
         );
 
         transactionRepository.save(transaction);

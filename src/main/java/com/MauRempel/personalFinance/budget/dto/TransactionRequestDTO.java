@@ -5,6 +5,7 @@ import com.MauRempel.personalFinance.budget.model.TransactionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +27,9 @@ public class TransactionRequestDTO {
 
     @Schema(example = "2026-04-16T09:00:00")
     private LocalDateTime timestamp;
+
+    @Size(max = 255, message = "Description must have at most 255 characters")
+    private String description;
 
     public LocalDateTime getTimestamp() {
         return timestamp;
@@ -57,5 +61,13 @@ public class TransactionRequestDTO {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

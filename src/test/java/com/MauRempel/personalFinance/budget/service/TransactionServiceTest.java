@@ -137,6 +137,6 @@ public class TransactionServiceTest {
 
     }
     private Transaction createTransaction(BigDecimal amount, TransactionType type, Category category){
-        return new Transaction(amount, type, category, FIXED_TIMESTAMP);
+        return new Transaction(amount, type, category, FIXED_TIMESTAMP, null);
     }
 }
