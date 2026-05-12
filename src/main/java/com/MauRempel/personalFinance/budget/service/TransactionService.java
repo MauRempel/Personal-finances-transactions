@@ -22,7 +22,8 @@ public class TransactionService {
     }
 
 
-    public BigDecimal calculateBalance(){
+    //calculate balance with Java
+    /*public BigDecimal calculateBalance(){
 
         BigDecimal balance = BigDecimal.ZERO;
 
@@ -30,6 +31,11 @@ public class TransactionService {
             balance = transaction.applyTo(balance);
         }
         return balance;
+    }*/
+
+    //later feat, calculate balance inside db
+    public BigDecimal calculateBalance(){
+        return transactionRepository.calculateBalance();
     }
 
     public TransactionResponseDTO addTransaction(TransactionRequestDTO requestDTO){

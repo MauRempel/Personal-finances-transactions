@@ -24,10 +24,10 @@ public class TransactionServiceTest {
     private static final LocalDateTime FIXED_TIMESTAMP = LocalDateTime.of(2026, 4, 29, 10, 0);
 
     @Test
-    void shouldReturnZeroWhenThereAreNoTransactions(){
+    void shouldReturnZeroWhenBalanceIsZero(){
 
         //Arrange
-        when(repository.findAll()).thenReturn(Collections.emptyList());
+        when(repository.calculateBalance()).thenReturn(BigDecimal.ZERO);
 
         //Act
         BigDecimal result = service.calculateBalance();
@@ -39,27 +39,24 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void shouldAddIncomeTransactionToBalance(){
-        BigDecimal value = new BigDecimal("100.00");
-        Transaction transaction = createTransaction(value, TransactionType.INCOME, Category.ENTERTAINMENT);
+    void shouldReturnPositiveBalance(){
+
 
         //Arrange
-        when(repository.findAll()).thenReturn(List.of(transaction));
+        when(repository.calculateBalance()).thenReturn(new BigDecimal("700.10"));
 
         //Act
         BigDecimal result = service.calculateBalance();
 
         //Assert
-        assertEquals(value, result);
+        assertEquals(new BigDecimal("700.10"), result);
     }
 
     @Test
-    void shouldSubtractExpenseTransactionFromBalance(){
-        BigDecimal value = new BigDecimal("100.00");
-        Transaction transaction = createTransaction(value, TransactionType.EXPENSE, Category.ENTERTAINMENT);
+    void shouldReturnNegativeBalance(){
 
         //Arrange
-        when(repository.findAll()).thenReturn(List.of(transaction));
+        when(repository.calculateBalance()).thenReturn(new BigDecimal("-100.00"));
 
         //Act
         BigDecimal result = service.calculateBalance();
@@ -68,22 +65,7 @@ public class TransactionServiceTest {
         assertEquals(new BigDecimal("-100.00"), result);
     }
 
-    @Test
-    void shouldReturnCorrectBalanceForMixedTransactions(){
-        Transaction transaction1 = createTransaction(new BigDecimal("1000.00"), TransactionType.INCOME, Category.SALARY);
-        Transaction transaction2 = createTransaction(new BigDecimal("250.00"), TransactionType.EXPENSE, Category.FOOD);
-        Transaction transaction3 = createTransaction(new BigDecimal("49.90"), TransactionType.EXPENSE, Category.ENTERTAINMENT);
 
-
-        //Arrange
-        when(repository.findAll()).thenReturn(List.of(transaction1, transaction2, transaction3));
-
-        //Act
-        BigDecimal result = service.calculateBalance();
-
-        //Assert
-        assertEquals(new BigDecimal("700.10"), result);
-    }
 
     @Test
     void addTransactionShouldSaveTransactionBuiltFromRequestDTO(){
@@ -136,7 +118,5 @@ public class TransactionServiceTest {
         assertFalse(result.getTimestamp().isAfter(after.withNano(0)));
 
     }
-    private Transaction createTransaction(BigDecimal amount, TransactionType type, Category category){
-        return new Transaction(amount, type, category, FIXED_TIMESTAMP, null);
-    }
+
 }
