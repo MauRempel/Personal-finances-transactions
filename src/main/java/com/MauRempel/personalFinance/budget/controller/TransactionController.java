@@ -2,6 +2,8 @@ package com.MauRempel.personalFinance.budget.controller;
 
 import com.MauRempel.personalFinance.budget.dto.TransactionRequestDTO;
 import com.MauRempel.personalFinance.budget.dto.TransactionResponseDTO;
+import com.MauRempel.personalFinance.budget.model.Category;
+import com.MauRempel.personalFinance.budget.model.TransactionType;
 import com.MauRempel.personalFinance.budget.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,8 +27,10 @@ public class TransactionController {
 
     @Operation(summary = "Get all transactions", description = "Returns all the transactions stored on the database")
     @GetMapping
-    public List<TransactionResponseDTO> getAll(){
-        return service.findAll();
+    public List<TransactionResponseDTO> getAll(
+            @RequestParam(required = false)Category category,
+            @RequestParam(required = false)TransactionType type){
+        return service.findAll(category, type);
     }
 
     @Operation(summary = "Get transaction by ID", description ="Returns a transaction based on its ID")

@@ -3,7 +3,9 @@ package com.MauRempel.personalFinance.budget.service;
 import com.MauRempel.personalFinance.budget.dto.TransactionRequestDTO;
 import com.MauRempel.personalFinance.budget.dto.TransactionResponseDTO;
 import com.MauRempel.personalFinance.budget.exception.ResourceNotFoundException;
+import com.MauRempel.personalFinance.budget.model.Category;
 import com.MauRempel.personalFinance.budget.model.Transaction;
+import com.MauRempel.personalFinance.budget.model.TransactionType;
 import com.MauRempel.personalFinance.budget.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,18 +24,6 @@ public class TransactionService {
     }
 
 
-    //calculate balance with Java
-    /*public BigDecimal calculateBalance(){
-
-        BigDecimal balance = BigDecimal.ZERO;
-
-        for(Transaction transaction : transactionRepository.findAll()){
-            balance = transaction.applyTo(balance);
-        }
-        return balance;
-    }*/
-
-    //later feat, calculate balance inside db
     public BigDecimal calculateBalance(){
         return transactionRepository.calculateBalance();
     }
@@ -70,8 +60,19 @@ public class TransactionService {
         );
     }
 
-    public List<TransactionResponseDTO> findAll() {
-        List<Transaction> transactions =  transactionRepository.findAll();
+    public List<TransactionResponseDTO> findAll(Category category, TransactionType type) {
+
+        List<Transaction> transactions;
+
+        if(category != null && type != null){
+            transactions = transactionRepository.findByCategoryAndType(category, type);
+        } else if(category != null){
+            transactions = transactionRepository.findByCategory(category);
+        }else if(type != null){
+            transactions = transactionRepository.findByType(type);
+        }else{
+            transactions = transactionRepository.findAll();
+        }
 
         List<TransactionResponseDTO> responseDTOList = new ArrayList<>();
 

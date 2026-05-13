@@ -1,6 +1,7 @@
 package com.MauRempel.personalFinance.budget.service;
 
 import com.MauRempel.personalFinance.budget.dto.TransactionRequestDTO;
+import com.MauRempel.personalFinance.budget.dto.TransactionResponseDTO;
 import com.MauRempel.personalFinance.budget.model.Category;
 import com.MauRempel.personalFinance.budget.model.Transaction;
 import com.MauRempel.personalFinance.budget.model.TransactionType;
@@ -118,5 +119,67 @@ public class TransactionServiceTest {
         assertFalse(result.getTimestamp().isAfter(after.withNano(0)));
 
     }
+
+    @Test
+    void shouldUseNoFilter(){
+        Transaction transaction = createTransaction(new BigDecimal("100.00"), TransactionType.INCOME, Category.SALARY);
+
+        when(repository.findAll()).thenReturn(List.of(transaction));
+
+        List<TransactionResponseDTO> result = service.findAll(null, null);
+
+        assertEquals(1, result.size());
+        assertEquals(Category.SALARY, result.getFirst().getCategory());
+        assertEquals(TransactionType.INCOME, result.getFirst().getType());
+        verify(repository).findAll();
+        verify(repository, never()).findByCategory(any());
+        verify(repository, never()).findByType(any());
+        verify(repository, never()).findByCategoryAndType(any(),any());
+    }
+
+    @Test
+    void shouldFilterByCategory(){
+        Transaction transaction = createTransaction(new BigDecimal("50.00"), TransactionType.EXPENSE, Category.FOOD);
+
+        when(repository.findByCategory(Category.FOOD)).thenReturn(List.of(transaction));
+
+        List<TransactionResponseDTO> result = service.findAll(Category.FOOD, null);
+
+        assertEquals(1, result.size());
+        assertEquals(Category.FOOD, result.getFirst().getCategory());
+        verify(repository).findByCategory(Category.FOOD);
+    }
+
+    @Test
+    void shouldFilterByType(){
+        Transaction transaction = createTransaction(new BigDecimal("100.00"), TransactionType.EXPENSE, Category.ENTERTAINMENT);
+
+        when(repository.findByType(TransactionType.EXPENSE)).thenReturn(List.of(transaction));
+
+        List<TransactionResponseDTO> result = service.findAll(null, TransactionType.EXPENSE);
+
+        assertEquals(1, result.size());
+        assertEquals(TransactionType.EXPENSE, result.getFirst().getType());
+        verify(repository).findByType(TransactionType.EXPENSE);
+    }
+    @Test
+    void shouldFilterByCategoryAndType(){
+        Transaction transaction = createTransaction(new BigDecimal("100.00"), TransactionType.INCOME, Category.SALARY);
+
+        when(repository.findByCategoryAndType(Category.SALARY, TransactionType.INCOME)).thenReturn(List.of(transaction));
+
+        List<TransactionResponseDTO> result = service.findAll(Category.SALARY, TransactionType.INCOME);
+
+        assertEquals(1, result.size());
+        assertEquals(Category.SALARY, result.getFirst().getCategory());
+        assertEquals(TransactionType.INCOME, result.getFirst().getType());
+        verify(repository).findByCategoryAndType(Category.SALARY, TransactionType.INCOME);
+    }
+
+    private Transaction createTransaction(BigDecimal amount, TransactionType type, Category category){
+       return new Transaction(amount, type, category, FIXED_TIMESTAMP, null);
+    }
+
+
 
 }
