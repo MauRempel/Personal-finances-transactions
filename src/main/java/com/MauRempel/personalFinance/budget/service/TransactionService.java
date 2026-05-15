@@ -7,6 +7,8 @@ import com.MauRempel.personalFinance.budget.model.Category;
 import com.MauRempel.personalFinance.budget.model.Transaction;
 import com.MauRempel.personalFinance.budget.model.TransactionType;
 import com.MauRempel.personalFinance.budget.repository.TransactionRepository;
+import com.MauRempel.personalFinance.budget.repository.TransactionSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -60,19 +62,20 @@ public class TransactionService {
         );
     }
 
-    public List<TransactionResponseDTO> findAll(Category category, TransactionType type) {
+    public List<TransactionResponseDTO> findAll(Category category, TransactionType type, LocalDateTime start, LocalDateTime end) {
 
-        List<Transaction> transactions;
 
-        if(category != null && type != null){
-            transactions = transactionRepository.findByCategoryAndType(category, type);
-        } else if(category != null){
-            transactions = transactionRepository.findByCategory(category);
-        }else if(type != null){
-            transactions = transactionRepository.findByType(type);
-        }else{
-            transactions = transactionRepository.findAll();
+        if(start != null && end != null && start.isAfter(end)){
+            throw new IllegalArgumentException("Start timestamp must be before or equal to end timestamp");
         }
+
+        Specification<Transaction> specification = Specification
+                .where(TransactionSpecification.hasCategory(category))
+                .and(TransactionSpecification.hasType(type))
+                .and(TransactionSpecification.timestampGreaterThanOrEqualTo(start))
+                .and(TransactionSpecification.timestampLessThanOrEqualTo(end));
+
+        List<Transaction> transactions = transactionRepository.findAll(specification);
 
         List<TransactionResponseDTO> responseDTOList = new ArrayList<>();
 

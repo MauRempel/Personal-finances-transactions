@@ -1,15 +1,13 @@
 package com.MauRempel.personalFinance.budget.repository;
 
-import com.MauRempel.personalFinance.budget.model.Category;
 import com.MauRempel.personalFinance.budget.model.Transaction;
-import com.MauRempel.personalFinance.budget.model.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
 
     @Query("""
         select coalesce(sum(
@@ -22,10 +20,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         """)
     BigDecimal calculateBalance();
 
-    List<Transaction> findByCategory(Category category);
 
-    List<Transaction> findByType(TransactionType type);
-
-    List<Transaction> findByCategoryAndType(Category category, TransactionType type);
 
 }

@@ -8,6 +8,7 @@ import com.MauRempel.personalFinance.budget.model.TransactionType;
 import com.MauRempel.personalFinance.budget.repository.TransactionRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -124,57 +125,46 @@ public class TransactionServiceTest {
     void shouldUseNoFilter(){
         Transaction transaction = createTransaction(new BigDecimal("100.00"), TransactionType.INCOME, Category.SALARY);
 
-        when(repository.findAll()).thenReturn(List.of(transaction));
+        when(repository.findAll(any(Specification.class))).thenReturn(List.of(transaction));
 
-        List<TransactionResponseDTO> result = service.findAll(null, null);
+        List<TransactionResponseDTO> result = service.findAll(null, null, null, null);
 
         assertEquals(1, result.size());
-        assertEquals(Category.SALARY, result.getFirst().getCategory());
-        assertEquals(TransactionType.INCOME, result.getFirst().getType());
-        verify(repository).findAll();
-        verify(repository, never()).findByCategory(any());
-        verify(repository, never()).findByType(any());
-        verify(repository, never()).findByCategoryAndType(any(),any());
+
+        verify(repository).findAll(any(Specification.class));
+
     }
 
     @Test
-    void shouldFilterByCategory(){
-        Transaction transaction = createTransaction(new BigDecimal("50.00"), TransactionType.EXPENSE, Category.FOOD);
-
-        when(repository.findByCategory(Category.FOOD)).thenReturn(List.of(transaction));
-
-        List<TransactionResponseDTO> result = service.findAll(Category.FOOD, null);
-
-        assertEquals(1, result.size());
-        assertEquals(Category.FOOD, result.getFirst().getCategory());
-        verify(repository).findByCategory(Category.FOOD);
-    }
-
-    @Test
-    void shouldFilterByType(){
-        Transaction transaction = createTransaction(new BigDecimal("100.00"), TransactionType.EXPENSE, Category.ENTERTAINMENT);
-
-        when(repository.findByType(TransactionType.EXPENSE)).thenReturn(List.of(transaction));
-
-        List<TransactionResponseDTO> result = service.findAll(null, TransactionType.EXPENSE);
-
-        assertEquals(1, result.size());
-        assertEquals(TransactionType.EXPENSE, result.getFirst().getType());
-        verify(repository).findByType(TransactionType.EXPENSE);
-    }
-    @Test
-    void shouldFilterByCategoryAndType(){
+    void shouldFilterOneCategory(){
         Transaction transaction = createTransaction(new BigDecimal("100.00"), TransactionType.INCOME, Category.SALARY);
 
-        when(repository.findByCategoryAndType(Category.SALARY, TransactionType.INCOME)).thenReturn(List.of(transaction));
+        when(repository.findAll(any(Specification.class))).thenReturn(List.of(transaction));
 
-        List<TransactionResponseDTO> result = service.findAll(Category.SALARY, TransactionType.INCOME);
+        List<TransactionResponseDTO> result = service.findAll(Category.SALARY, null, null, null);
 
         assertEquals(1, result.size());
         assertEquals(Category.SALARY, result.getFirst().getCategory());
         assertEquals(TransactionType.INCOME, result.getFirst().getType());
-        verify(repository).findByCategoryAndType(Category.SALARY, TransactionType.INCOME);
+        verify(repository).findAll(any(Specification.class));
+
     }
+
+    @Test
+    void shouldThrowWhenStartIsAfterEnd(){
+        LocalDateTime start = LocalDateTime.of(2026, 5, 31, 23, 59);
+        LocalDateTime end = LocalDateTime.of(2026, 5, 1, 0, 0);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.findAll(null, null, start, end)
+        );
+
+        assertEquals("Start timestamp must be before or equal to end timestamp", exception.getMessage());
+        verify(repository, never()).findAll(any(Specification.class));
+    }
+
+
 
     private Transaction createTransaction(BigDecimal amount, TransactionType type, Category category){
        return new Transaction(amount, type, category, FIXED_TIMESTAMP, null);
