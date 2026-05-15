@@ -17,17 +17,18 @@ public class TransactionRequestDTO {
     @Positive(message = "Amount must be greater than zero")
     private BigDecimal amount;
 
-
+    @Schema(description = "Transaction type", example = "EXPENSE")
     @NotNull(message = "Transaction type is required")
     private TransactionType type;
 
-
+    @Schema(description = "Transaction category", example = "FOOD")
     @NotNull(message = "Category is required")
     private Category category;
 
-    @Schema(example = "2026-04-16T09:00:00")
+    @Schema(description = "Transaction timestamp in ISO-8601 format", example = "2026-04-16T09:00:00")
     private LocalDateTime timestamp;
 
+    @Schema(description = "Optional free-text description", example = "Lunch with coworkers")
     @Size(max = 255, message = "Description must have at most 255 characters")
     private String description;
 
