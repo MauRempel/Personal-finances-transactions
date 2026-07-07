@@ -10,11 +10,11 @@ import com.MauRempel.personalFinance.budget.repository.TransactionRepository;
 import com.MauRempel.personalFinance.budget.repository.TransactionSpecification;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class TransactionService {
@@ -62,7 +62,13 @@ public class TransactionService {
         );
     }
 
-    public List<TransactionResponseDTO> findAll(Category category, TransactionType type, LocalDateTime start, LocalDateTime end) {
+    public Page<TransactionResponseDTO> findAll(
+            Category category,
+            TransactionType type,
+            LocalDateTime start,
+            LocalDateTime end,
+            Pageable pageable
+    ) {
 
 
         if(start != null && end != null && start.isAfter(end)){
@@ -75,16 +81,9 @@ public class TransactionService {
                 .and(TransactionSpecification.timestampGreaterThanOrEqualTo(start))
                 .and(TransactionSpecification.timestampLessThanOrEqualTo(end));
 
-        List<Transaction> transactions = transactionRepository.findAll(specification);
 
-        List<TransactionResponseDTO> responseDTOList = new ArrayList<>();
-
-        for (Transaction transaction: transactions) {
-
-            responseDTOList.add(toResponseDTO(transaction));
-
-        }
-        return responseDTOList;
+        return transactionRepository.findAll(specification, pageable)
+                .map(this::toResponseDTO);
     }
 
     public TransactionResponseDTO findById(Long id){

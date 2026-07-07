@@ -9,10 +9,13 @@ import com.MauRempel.personalFinance.budget.repository.TransactionRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,6 +27,8 @@ public class TransactionServiceTest {
     private final TransactionService service = new TransactionService(repository);
 
     private static final LocalDateTime FIXED_TIMESTAMP = LocalDateTime.of(2026, 4, 29, 10, 0);
+    private static final Pageable PAGEABLE = PageRequest.of(0,10);
+
 
     @Test
     void shouldReturnZeroWhenBalanceIsZero(){
@@ -125,13 +130,13 @@ public class TransactionServiceTest {
     void shouldUseNoFilter(){
         Transaction transaction = createTransaction(new BigDecimal("100.00"), TransactionType.INCOME, Category.SALARY);
 
-        when(repository.findAll(any(Specification.class))).thenReturn(List.of(transaction));
+        when(repository.findAll(any(Specification.class), eq(PAGEABLE))).thenReturn(new PageImpl<>(List.of(transaction), PAGEABLE, 1));
 
-        List<TransactionResponseDTO> result = service.findAll(null, null, null, null);
+        Page<TransactionResponseDTO> result = service.findAll(null, null, null, null, PAGEABLE);
 
-        assertEquals(1, result.size());
+        assertEquals(1, result.getTotalElements());
 
-        verify(repository).findAll(any(Specification.class));
+        verify(repository).findAll(any(Specification.class),any(Pageable.class));
 
     }
 
@@ -139,14 +144,14 @@ public class TransactionServiceTest {
     void shouldFilterOneCategory(){
         Transaction transaction = createTransaction(new BigDecimal("100.00"), TransactionType.INCOME, Category.SALARY);
 
-        when(repository.findAll(any(Specification.class))).thenReturn(List.of(transaction));
+        when(repository.findAll(any(Specification.class), eq(PAGEABLE))).thenReturn(new PageImpl<>(List.of(transaction), PAGEABLE, 1));
 
-        List<TransactionResponseDTO> result = service.findAll(Category.SALARY, null, null, null);
+        Page<TransactionResponseDTO> result = service.findAll(Category.SALARY, null, null, null, PAGEABLE);
 
-        assertEquals(1, result.size());
-        assertEquals(Category.SALARY, result.getFirst().getCategory());
-        assertEquals(TransactionType.INCOME, result.getFirst().getType());
-        verify(repository).findAll(any(Specification.class));
+        assertEquals(1, result.getTotalElements());
+        assertEquals(Category.SALARY, result.getContent().getFirst().getCategory());
+        assertEquals(TransactionType.INCOME, result.getContent().getFirst().getType());
+        verify(repository).findAll(any(Specification.class),any(Pageable.class));
 
     }
 
@@ -157,11 +162,11 @@ public class TransactionServiceTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> service.findAll(null, null, start, end)
+                () -> service.findAll(null, null, start, end, PAGEABLE)
         );
 
         assertEquals("Start timestamp must be before or equal to end timestamp", exception.getMessage());
-        verify(repository, never()).findAll(any(Specification.class));
+        verify(repository, never()).findAll(any(Specification.class), any(Pageable.class));
     }
 
 

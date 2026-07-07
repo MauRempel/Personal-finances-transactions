@@ -15,9 +15,12 @@ import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Tag(name = "Transactions", description = "Operations for managing financial transactions")
 @RestController
@@ -39,7 +42,7 @@ public class TransactionController {
             description = "Invalid filter input"
     )
     @GetMapping
-    public List<TransactionResponseDTO> getAll(
+    public Page<TransactionResponseDTO> getAll(
             @Parameter(description = "Filter by category", example = "FOOD")
             @RequestParam(required = false)
             Category category,
@@ -53,8 +56,14 @@ public class TransactionController {
             @Parameter(description = "Filter transactions until this timestamp", example = "2026-05-31T23:59:59")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            LocalDateTime end){
-        return service.findAll(category, type, start, end);
+            LocalDateTime end,
+            @PageableDefault(
+                    size = 10,
+                    sort = "timestamp",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable
+    ) {
+        return service.findAll(category, type, start, end, pageable);
     }
 
     @Operation(summary = "Get transaction by ID", description ="Returns a transaction based on its ID")
