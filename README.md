@@ -129,12 +129,14 @@ Os filtros são opcionais ao usar o GET e podem ser combinados entre si. Quando 
 ```
 
 ## GET `/transactions`
+* Por padrão, as transações são retornadas com um tamanho de página de 10, ordenadas por timestamp descendente.
 
 ```text
 GET /transactions?category=FOOD
 GET /transactions?type=EXPENSE
 GET /transactions?start=2026-05-01T00:00:00&end=2026-05-31T23:59:59
 GET /transactions?category=FOOD&type=EXPENSE
+GET /transactions?page=0&size=10&sort=timestamp,desc
 ```
 
 
@@ -366,13 +368,13 @@ Depois execute:
 - Filtros dinâmicos com Specifications
 - Resposta tipada para saldo
 - Perfis separados por ambiente
+- Paginação
 
 ---
 
 # 🚧 Melhorias Futuras
 
 - PATCH parcial
-- Paginação
 - Dashboard financeiro
 - Relatórios por categoria
 - Testes de integração
@@ -385,9 +387,9 @@ Depois execute:
 
 ---
 
-# 👨‍💻 Autor
+## 👨‍💻 Autor
 
-## Mauricio Rempel
+### Mauricio Rempel
 
 Backend Developer focado em Java e Spring Boot.
 
