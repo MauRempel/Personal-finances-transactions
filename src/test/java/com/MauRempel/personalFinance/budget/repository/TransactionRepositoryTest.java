@@ -4,10 +4,10 @@ package com.MauRempel.personalFinance.budget.repository;
 import com.MauRempel.personalFinance.budget.model.Category;
 import com.MauRempel.personalFinance.budget.model.Transaction;
 import com.MauRempel.personalFinance.budget.model.TransactionType;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Disabled("Reintroduce as PostgreSQL integration test")
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 public class TransactionRepositoryTest {
 
