@@ -12,12 +12,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(TransactionController.class)
+@ActiveProfiles("test")
 class TransactionControllerTest {
 
     @Autowired
@@ -63,5 +65,23 @@ class TransactionControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.message").value("amount: Amount is required"));
+    }
+
+    @Test
+    void getAllShouldReturnBadRequestWhenCategoryIsInvalid() throws Exception {
+        mockMvc.perform(get("/transactions")
+                    .param("category", "INVALID"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Invalid value 'INVALID' for parameter 'category'. Expected: Category"));
+    }
+
+    @Test
+    void getAllShouldReturnBadRequestWhenStartDateIsInvalid() throws Exception {
+        mockMvc.perform(get("/transactions")
+                    .param("start", "not-a-date"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Invalid value 'not-a-date' for parameter 'start'. Expected: LocalDateTime"));
     }
 }

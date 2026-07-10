@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 import java.time.OffsetDateTime;
 
@@ -44,6 +46,23 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String parameterName = ex.getName();
+        Object invalidValue = ex.getValue();
+        Class<?> requiredType = ex.getRequiredType();
+
+        String expectedType = requiredType != null
+                ? requiredType.getSimpleName()
+                : "valid value";
+
+        String message = "Invalid value '" + invalidValue +
+                "' for parameter '" + parameterName +
+                "'. Expected: " + expectedType;
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
+    }
+
 
 
     @ExceptionHandler(Exception.class)
@@ -53,6 +72,8 @@ public class GlobalExceptionHandler {
 
         return buildErrorResponse(500, "Internal Server Error");
     }
+
+
 
 
     private ResponseEntity<ErrorResponseDTO> buildErrorResponse(int status, String message){
