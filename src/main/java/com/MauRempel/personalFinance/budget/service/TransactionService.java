@@ -75,11 +75,12 @@ public class TransactionService {
             throw new IllegalArgumentException("Start timestamp must be before or equal to end timestamp");
         }
 
-        Specification<Transaction> specification = Specification
-                .where(TransactionSpecification.hasCategory(category))
-                .and(TransactionSpecification.hasType(type))
-                .and(TransactionSpecification.timestampGreaterThanOrEqualTo(start))
-                .and(TransactionSpecification.timestampLessThanOrEqualTo(end));
+        Specification<Transaction> specification = TransactionSpecification.withFilters(
+                category,
+                type,
+                start,
+                end
+        );
 
 
         return transactionRepository.findAll(specification, pageable)
