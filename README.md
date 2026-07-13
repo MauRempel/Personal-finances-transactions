@@ -124,7 +124,7 @@ Os filtros são opcionais ao usar o GET e podem ser combinados entre si. Quando 
   "type": "INCOME",
   "category": "SALARY",
   "timestamp": "2026-05-09T09:00:00",
-  "description: Salário mensal"
+  "description": "Salário mensal"
 }
 ```
 
@@ -137,6 +137,7 @@ GET /transactions?type=EXPENSE
 GET /transactions?start=2026-05-01T00:00:00&end=2026-05-31T23:59:59
 GET /transactions?category=FOOD&type=EXPENSE
 GET /transactions?page=0&size=10&sort=timestamp,desc
+GET /transactions?category=FOOD&type=EXPENSE&page=0&size=5
 ```
 
 
@@ -197,8 +198,8 @@ src/main/resources/application.properties
 
 # 🗄️ Estratégia de Banco de Dados
 
-O projeto não força um perfil padrão. 
-Escolha o perfil explicitamente ao executar a aplicação.
+O projeto não força um perfil padrão.
+O profile deve ser informado explicitamente ao executar o projeto.
 ## Desenvolvimento Local
 
 - Profile `dev` utiliza H2
@@ -291,12 +292,6 @@ Depois execute:
 ./mvnw "-Dspring-boot.run.profiles=postgres" spring-boot:run
 ```
 
-### Windows PowerShell
-
-```powershell
-.\mvnw.cmd "-Dspring-boot.run.profiles=postgres" spring-boot:run
-```
-
 ---
 
 ## 4️⃣ Executar testes
@@ -310,7 +305,7 @@ Depois execute:
 # 📌 Regras de Negócio
 
 - O valor da transação deve ser positivo
-- Toda transação possui:
+- Toda a transação possui:
   - valor
   - categoria
   - tipo
@@ -369,7 +364,9 @@ Depois execute:
 - Filtros dinâmicos com Specifications
 - Resposta tipada para saldo
 - Perfis separados por ambiente
-- Paginação
+- Paginação e ordenação em GET /transactions
+- Índices para filtros de transações
+- Validação de migrations Flyway em testes
 
 ---
 
