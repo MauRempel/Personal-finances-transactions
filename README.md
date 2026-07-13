@@ -197,8 +197,8 @@ src/main/resources/application.properties
 
 # 🗄️ Estratégia de Banco de Dados
 
-O banco principal da aplicação é o PostgreSQL e o H2 é mantido como suporte para fallback local e testes automatizados.
-
+O projeto não força um perfil padrão. 
+Escolha o perfil explicitamente ao executar a aplicação.
 ## Desenvolvimento Local
 
 - Profile `dev` utiliza H2
@@ -220,6 +220,7 @@ Migrations atuais:
 ```text
 V1__create_transaction_table.sql
 V2__add_description_to_transaction.sql
+V3__add_transaction_filter_indexes.sql
 ```
 
 Hibernate configurado com:
