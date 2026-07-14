@@ -27,7 +27,7 @@ A API foi inspirada em planilhas pessoais de controle financeiro e tem como obje
 ## ✅ Transações Financeiras
 
 - Criar transações
-- Listar todas as transações
+- Listar transações com paginação, filtros e ordenação
 - Buscar transação por ID
 - Atualizar transações
 - Remover transações
@@ -97,7 +97,7 @@ A documentação Swagger permite:
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| GET | `/transactions` | Lista transações com filtros opcionais por categoria, tipo e período |
+| GET | `/transactions` | Lista transações com filtros opcionais, paginação e ordenação |
 | GET | `/transactions/{id}` | Busca transação por ID |
 | POST | `/transactions` | Cria uma transação |
 | PUT | `/transactions/{id}` | Atualiza uma transação |
@@ -140,37 +140,76 @@ GET /transactions?page=0&size=10&sort=timestamp,desc
 GET /transactions?category=FOOD&type=EXPENSE&page=0&size=5
 ```
 
+Exemplo de resposta paginada:
+
+```json
+{
+  "content": [
+    {
+      "id": 1,
+      "amount": 1000.00,
+      "type": "INCOME",
+      "category": "SALARY",
+      "timestamp": "2026-05-09T09:00:00",
+      "description": "Salário mensal"
+    }
+  ],
+  "page": {
+    "size": 10,
+    "number": 0,
+    "totalElements": 1,
+    "totalPages": 1
+  }
+}
+
+```
+
+
 
 ---
 
 # 🧱 Estrutura do Projeto
 
 ```text
-src/main/java/com/MauRempel/personalFinance/budget
+src
 │
-├── controller
-│   └── Endpoints HTTP da aplicação
+├── main
+│   ├── java/com/MauRempel/personalFinance/budget
+│   │   ├── controller
+│   │   │   └── Endpoints HTTP da aplicação
+│   │   ├── service
+│   │   │   └── Regras de negócio e orquestração
+│   │   ├── repository
+│   │   │   └── Camada de acesso a dados (JPA)
+│   │   ├── model
+│   │   │   └── Entidades e enums do domínio
+│   │   ├── dto
+│   │   │   └── Objetos de request/response
+│   │   ├── exception
+│   │   │   └── Tratamento global de exceções
+│   │   └── config
+│   │       └── Configurações do Swagger/OpenAPI
+│   │
+│   └── resources
+│       ├── db/migration
+│       │   └── Migrations Flyway
+│       └── application-*.properties
+│           └── Profiles da aplicação
 │
-├── service
-│   └── Regras de negócio e orquestração
-│
-├── repository
-│   └── Camada de acesso a dados (JPA)
-│
-├── model
-│   └── Entidades e enums do domínio
-│
-├── dto
-│   └── Objetos de request/response
-│
-├── exception
-│   └── Tratamento global de exceções
-│
-├── config
-│   └── Configurações do Swagger/OpenAPI
-│
-└── resources
-    └── Profiles e migrations Flyway
+└── test
+    ├── java/com/MauRempel/personalFinance/budget
+    │   ├── controller
+    │   │   └── Testes da camada web e validação de respostas HTTP
+    │   ├── service
+    │   │   └── Testes das regras de negócio e orquestração
+    │   ├── repository
+    │   │   └── Testes de persistência, queries e Specifications
+    │   └── MigrationValidationTest
+    │       └── Validação das migrations Flyway contra o schema da aplicação
+    │
+    └── resources
+        └── application-flyway-test.properties
+            └── Profile de teste com Flyway habilitado para validar migrations
 ```
 
 ---
@@ -182,11 +221,12 @@ O projeto utiliza ambientes separados via Spring Profiles:
 | Profile | Descrição |
 |---|---|
 | `dev` | Banco H2 local persistente |
-| `test` | H2 em memória para testes |
 | `postgres` | PostgreSQL + Flyway |
+| `test` | H2 em memória para testes |
+| `flyway-test` | H2 em memória com Flyway habilitado para validar migrations |
 
-Atualmente, o profile padrão da aplicação é o postgres.
-O profile dev permanece disponível como fallback local com H2.
+A aplicação não força um profile padrão.
+O profile deve ser informado explicitamente ao executar o projeto.
 
 Configuração principal:
 
@@ -253,6 +293,10 @@ cd Personal-finances-transactions
 
 ```bash
 ./mvnw "-Dspring-boot.run.profiles=dev" spring-boot:run
+
+//Windows
+.\mvnw.cmd "-Dspring-boot.run.profiles=dev" spring-boot:run
+
 ```
 
 ---
@@ -298,6 +342,9 @@ Depois execute:
 
 ```bash
 ./mvnw test
+
+.\mvnw.cmd test //for windows
+
 ```
 
 ---
@@ -372,14 +419,14 @@ Depois execute:
 
 # 🚧 Melhorias Futuras
 
-- PATCH parcial
-- Dashboard financeiro
 - Relatórios por categoria
+- Dashboard financeiro
+- PATCH parcial
 - Testes de integração
 - Cobertura de testes
 - Dockerização
-- Deploy em cloud
 - CI/CD
+- Deploy em cloud
 - Autenticação JWT
 - Controle de usuários
 
